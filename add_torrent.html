@@ -8,11 +8,11 @@
 </html>
 
 <div class="module">
-	<form enctype="multipart/form-data" method="POST" action="">
-		{% csrf_token %}
-		<table>
-			{{ form }}
-		</table>
-		<input type="submit" value="Add">
-	</form>
+  <form enctype="multipart/form-data" method="POST" action="">
+    {% csrf_token %}
+    <table>
+      {{ form }}
+    </table>
+    <input type="submit" value="Add">
+  </form>
 </div>
