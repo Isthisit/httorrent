@@ -7,7 +7,7 @@
   </head>
 </html>
 
-<div id="content" class="colMS">
+<div id="content">
   <h1>Doorstop Torrents</h1>
   <div id="content-main">
     <ul class="object-tools">
@@ -16,7 +16,7 @@
 
     <div class="module">
       {% if torrent_list %}
-      <table>
+      <table width=100%>
         <caption>Active Torrents</caption>
         <thead>
           <tr>
@@ -38,7 +38,7 @@
         {% endfor %}
       </table>
       {% else %}
-          <p>No torrents are available.</p>
+				<p>No torrents are available.</p>
       {% endif %}
     </div>
   </div>
