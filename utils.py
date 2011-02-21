@@ -1,7 +1,9 @@
 import xmlrpclib
+import settings
+import os
 
 def connect():
-    return xmlrpclib.Server('http://192.168.0.1/RPC2')
+    return xmlrpclib.Server(settings.rtorrent_rpc)
 
 def filter_bytes(count, unit):
     factor = 1
@@ -21,6 +23,9 @@ def filter_bytes(count, unit):
     return count / factor
 
 def handle_uploaded_file(file_object):
-    print "got file %s" % file_object
+    destination = open(os.path.join(settings.torrent_dir, file_object.name), 'wb+')
+    for chunk in file_object.chunks():
+        destination.write(chunk)
+    destination.close()
 
 

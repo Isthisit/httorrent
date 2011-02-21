@@ -8,19 +8,26 @@
   </head>
 </html>
 
-{% if torrent_list %}
 <div id="content" class="colMS">
   <h1>Doorstop Torrents</h1>
   <div id="content-main">
+    <ul class="object-tools">
+      <li><a href="add_torrent" class="addlink">Add Torrent </a></li>
+    </ul>
+
     <div class="module">
+      {% if torrent_list %}
       <table>
         <caption>Active Torrents</caption>
-        <tr>
-          <th>Name</th>
-          <th>Downloaded (MiB)</th>
-          <th>Size (MiB)</th>
-          <th>Download Rate</th>
-          <th>Upload Rate</th>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Downloaded (MiB)</th>
+            <th>Size (MiB)</th>
+            <th>Download Rate</th>
+            <th>Upload Rate</th>
+          </tr>
+        </thead>
         {% for torrent in torrent_list %}
           <tr>
             <th scope="row">{{ torrent.name }}</th>
@@ -31,18 +38,20 @@
           </tr>
         {% endfor %}
       </table>
+      {% else %}
+          <p>No torrents are available.</p>
+      {% endif %}
     </div>
   </div>
 
+  <!--
   <div id="content-related">
     <div class="module" id="recent-actions-module">
       <h2>Actions</h2>
       <a href="add_torrent" class="addlink">Add Torrent</a>
     </div>
   </div>
+  -->
 </div>
 
 
-{% else %}
-    <p>No torrents are available.</p>
-{% endif %}
