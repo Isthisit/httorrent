@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Torrent Status</title>
+    <link rel="stylesheet" type="text/css" href="/media/css/base.css" /> 
+    <link rel="stylesheet" type="text/css" href="/media/css/dashboard.css" />
+  </head>
+</html>
+
+{% if torrent_list %}
+<div id="content" class="colMS">
+  <h1>Doorstop Torrents</h1>
+  <div id="content-main">
+    <div class="module">
+      <table>
+        <caption>Active Torrents</caption>
+        <tr>
+          <th>Name</th>
+          <th>Downloaded (MiB)</th>
+          <th>Size (MiB)</th>
+          <th>Download Rate</th>
+          <th>Upload Rate</th>
+        {% for torrent in torrent_list %}
+          <tr>
+            <th scope="row">{{ torrent.name }}</th>
+            <td>{{ torrent.completedMiB }}</td>
+            <td>{{ torrent.sizeMiB }}</td>
+            <td>{{ torrent.down_rate }}</td>
+            <td>{{ torrent.up_rate }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <div id="content-related">
+    <div class="module" id="recent-actions-module">
+      <h2>Actions</h2>
+      <a href="add_torrent" class="addlink">Add Torrent</a>
+    </div>
+  </div>
+</div>
+
+
+{% else %}
+    <p>No torrents are available.</p>
+{% endif %}
