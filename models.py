@@ -6,7 +6,7 @@ class Torrent(object):
     server=None
     
     def __init__(self, key):
-        self.__key = key
+        self.key = key
         self.update(key)
 
     def update(self, key):
@@ -42,14 +42,10 @@ class Torrent(object):
         self.open = (result[11] == 1)
         self.active = (result[12] == 1)
 
-    def get_MiB_size(self):
-        return utils.filter_bytes(self.size, "MiB")
-
-    def get_MiB_completed(self):
-        return utils.filter_bytes(self.completed, "MiB")
-
-    sizeMiB = property(fget=get_MiB_size)
-    completedMiB = property(fget=get_MiB_completed)
+    sizeMiB = property(fget=lambda self : utils.filter_bytes(self.size, "MiB"))
+    completedMiB = property(fget=lambda self : utils.filter_bytes(self.completed, "MiB"))
+    down_rateKiB = property(fget=lambda self : utils.filter_bytes(self.down_rate, "KiB"))
+    up_rateKiB = property(fget=lambda self : utils.filter_bytes(self.up_rate, "KiB"))
 
     @classmethod
     def all(cls):

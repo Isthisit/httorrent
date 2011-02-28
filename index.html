@@ -3,6 +3,12 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Torrent Status</title>
+		<script type="text/javascript" src="/static/js/yahoo/yahoo-min.js"></script> 
+		<script type="text/javascript" src="/static/js/dom/dom-min.js"></script> 
+		<script type="text/javascript" src="/static/js/event/event-min.js"></script> 
+		<script type="text/javascript" src="/static/js/connection/connection-min.js"></script> 
+		<script type="text/javascript" src="/static/js/animation/animation-min.js"></script> 
+		<script type="text/javascript" src="/static/js/index.js"></script> 
     <link rel="stylesheet" type="text/css" href="/static/css/base.css" /> 
   </head>
 </html>
@@ -11,31 +17,33 @@
   <h1>Doorstop Torrents</h1>
   <div id="content-main">
     <ul class="object-tools">
-      <li><a href="add_torrent" class="addlink">Add Torrent </a></li>
+      <li><a href="add_torrent" class="addlink">Add Torrent</a></li>
     </ul>
 
     <div class="module">
       {% if torrent_list %}
-      <table width=100%>
+      <table width=100% id='torrents'>
         <caption>Active Torrents</caption>
         <thead>
-          <tr>
+          <tr id="torrent_header">
             <th>Name</th>
             <th>Downloaded (MiB)</th>
             <th>Size (MiB)</th>
-            <th>Download Rate</th>
-            <th>Upload Rate</th>
+            <th>Download Rate (KiB/s)</th>
+            <th>Upload Rate (KiB/s)</th>
           </tr>
         </thead>
+				<!--
         {% for torrent in torrent_list %}
-          <tr>
+				  <tr id="{{ torrent.key }}">
             <th scope="row">{{ torrent.name }}</th>
             <td>{{ torrent.completedMiB }}</td>
             <td>{{ torrent.sizeMiB }}</td>
-            <td>{{ torrent.down_rate }}</td>
-            <td>{{ torrent.up_rate }}</td>
+            <td>{{ torrent.down_rateKiB }}</td>
+            <td>{{ torrent.up_rateKiB }}</td>
           </tr>
         {% endfor %}
+				-->
       </table>
       {% else %}
         <p>No torrents are available.</p>
