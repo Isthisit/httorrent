@@ -1,19 +1,19 @@
-var ajax_example = {
+var httorrent_ajax = {
 	init: function() {
 		// Grab the elements we'll need
-		ajax_example.torrents_table = document.getElementById('torrents');
-		ajax_example.get_torrents();
+		httorrent_ajax.torrents_table = document.getElementById('torrents');
+		httorrent_ajax.get_torrents();
 	},
 	get_torrents: function() {
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', '/httorrent/?torrent', ajax_example.torrent_callback);
-		setTimeout(function() { ajax_example.get_torrents(); }, 5000 );
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', '/httorrent/?torrent', httorrent_ajax.torrent_callback);
+		setTimeout(function() { httorrent_ajax.get_torrents(); }, 5000 );
 	},
 	clear_table: function() {
-		var rows = ajax_example.torrents_table.getElementsByTagName('tr');
+		var rows = httorrent_ajax.torrents_table.getElementsByTagName('tr');
 
 		for(var i=0; i < rows.length; i++) {
 			if((rows[i].id != 'torrent_header')) {
-				ajax_example.torrents_table.removeChild(rows[i]);
+				httorrent_ajax.torrents_table.removeChild(rows[i]);
 				// adjust index so it points at the right thing after we deleted the current 'tr'
 				i--;
 			}
@@ -23,7 +23,7 @@ var ajax_example = {
 		success: function(o) {
 			var response_obj = eval('(' + o.responseText + ')');
 
-			ajax_example.clear_table();
+			httorrent_ajax.clear_table();
 			for(var torrent in response_obj) {
 				// Create a row for this torrent.
 				var row = document.createElement('tr');
@@ -45,7 +45,7 @@ var ajax_example = {
 				row.appendChild(row_up_rate);
 
 				// Update table
-				ajax_example.torrents_table.appendChild(row);
+				httorrent_ajax.torrents_table.appendChild(row);
 			}
 		},
 		failure: function(o) {
@@ -54,4 +54,4 @@ var ajax_example = {
 	}
 };
 
-YAHOO.util.Event.addListener(window, 'load', ajax_example.init);
+YAHOO.util.Event.addListener(window, 'load', httorrent_ajax.init);
