@@ -5,26 +5,26 @@ from django.core.context_processors import csrf
 
 from django.utils import simplejson
 
-from models import Torrent
+from models import Torrent, RTorrent
 from forms import AddTorrentForm
 import utils
 
 def index(request):
     response_dict = {}
-    xhr = request.GET.has_key('xhr')
+    rtorrent = RTorrent()
     torrent = request.GET.has_key('torrent')
     torrent_list = Torrent.all()
-    if xhr:
-        response_dict.update({'count': len(torrent_list), 'success': True})
-        return HttpResponse(simplejson.dumps(response_dict), mimetype='application/javascript')
     if torrent:
+        response_dict.update({'upload_rate': format(rtorrent.up_rateKiB, ".2f"),
+                              'download_rate': format(rtorrent.down_rateKiB, ".2f"),
+                              'torrents': {}})
         for torrent in torrent_list:
             torrent_dict = {'name': torrent.name, 
-                            'size': str(torrent.sizeMiB),
-                            'completed': str(torrent.completedMiB),
-                            'up_rate': str(torrent.up_rateKiB),
-                            'down_rate': str(torrent.down_rateKiB)}
-            response_dict.update({torrent.hash: torrent_dict})
+                            'size': format(torrent.sizeMiB, ".2f"),
+                            'completed': format(torrent.completedMiB, ".2f"),
+                            'up_rate': format(torrent.up_rateKiB, ".2f"),
+                            'down_rate': format(torrent.down_rateKiB, ".2f")}
+            response_dict['torrents'].update({torrent.hash: torrent_dict})
         return HttpResponse(simplejson.dumps(response_dict), mimetype='application/javascript')
     else:
         return render_to_response('httorrent/index.html', {'torrent_list': torrent_list})

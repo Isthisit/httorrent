@@ -7,10 +7,10 @@ function get_torrents() {
 	$.getJSON('/httorrent/?torrent', function(data) {
 		var items = [];
 
-		$('tr').remove('#single_torrent');
+		$('tr').remove('#torrent_row');
 
-		$.each(data, function(key, val) {
-			items.push('<tr id="single_torrent">');
+		$.each(data.torrents, function(key, val) {
+			items.push('<tr id="torrent_row">');
 			items.push('<th>' + val.name + '</th>');
 			items.push('<td>' + val.completed + '</td>');
 			items.push('<td>' + val.size + '</td>');
@@ -19,8 +19,56 @@ function get_torrents() {
 			items.push('</tr>');
 		})
 
-		$("#torrents").append(items.join('\n'));
+		$('#torrents').append(items.join('\n'));
+		$('#status').empty();
+		$('#status').append('<p>Download Rate: ' + data.download_rate + ' KiB/s</p>');
+		$('#status').append('<p>Upload Rate: ' + data.upload_rate + ' KiB/s</p>');
+
 		setTimeout('get_torrents()', 5000);
 	})
+	.error(function () {
+		$('tr').remove('#torrent_row');
+
+		var items = []
+		items.push('<tr id="torrent_row">');
+		items.push('<th>Could not fetch torrents!</tr>');
+		$('#torrents').append(items.join('\n'));
+
+		setTimeout('get_torrents()', 60000);
+	});
 }
 
+$(function() {
+	var filename = $("#id_file")
+	// Dialog			
+	$('#dialog').dialog({
+		autoOpen: false,
+		width: 600,
+		buttons: {
+			"Upload torrent": function() { 
+				$.post('/httorrent/add_torrent', filename.val(), function(data) {
+				}, "html")
+				.error(function(data) {
+					$('#result').append(data);
+				});
+				$(this).dialog("close"); 
+			}, 
+			"Cancel": function() { 
+				$(this).dialog("close"); 
+			} 
+		},
+		modal: true
+	});
+	
+	// Dialog Link
+	$('#dialog_link').button().click(function(){
+		$('#dialog').dialog('open');
+		return false;
+	});
+
+	//hover states on the static widgets
+	$('#dialog_link, ul#icons li').hover(
+		function() { $(this).addClass('ui-state-hover'); }, 
+		function() { $(this).removeClass('ui-state-hover'); }
+	);
+});
