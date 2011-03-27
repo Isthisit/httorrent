@@ -10,24 +10,33 @@ from forms import AddTorrentForm
 import utils
 
 def index(request):
-    response_dict = {}
-    rtorrent = RTorrent()
-    torrent = request.GET.has_key('torrent')
-    torrent_list = Torrent.all()
-    if torrent:
-        response_dict.update({'upload_rate': format(rtorrent.up_rateKiB, ".2f"),
-                              'download_rate': format(rtorrent.down_rateKiB, ".2f"),
-                              'torrents': {}})
-        for torrent in torrent_list:
-            torrent_dict = {'name': torrent.name, 
-                            'size': format(torrent.sizeMiB, ".2f"),
-                            'completed': format(torrent.completedMiB, ".2f"),
-                            'up_rate': format(torrent.up_rateKiB, ".2f"),
-                            'down_rate': format(torrent.down_rateKiB, ".2f")}
-            response_dict['torrents'].update({torrent.hash: torrent_dict})
-        return HttpResponse(simplejson.dumps(response_dict), mimetype='application/javascript')
+    if request.method == 'POST':
+        form = AddTorrentForm(request.POST, request.FILES)
+        if form.is_valid():
+            utils.handle_uploaded_file(request.FILES['file'])
+            return HttpResponseRedirect('.')
+        else:
+            return HttpResponseRedirect('.')
     else:
-        return render_to_response('httorrent/index.html', {'torrent_list': torrent_list})
+        torrent = request.GET.has_key('torrent')
+        if torrent:
+            response_dict = {}
+            rtorrent = RTorrent()
+            torrent_list = Torrent.all()
+            response_dict.update({'upload_rate': format(rtorrent.up_rateKiB, ".2f"),
+                                  'download_rate': format(rtorrent.down_rateKiB, ".2f"),
+                                  'torrents': {}})
+            for torrent in torrent_list:
+                torrent_dict = {'name': torrent.name, 
+                                'size': format(torrent.sizeMiB, ".2f"),
+                                'completed': format(torrent.completedMiB, ".2f"),
+                                'up_rate': format(torrent.up_rateKiB, ".2f"),
+                                'down_rate': format(torrent.down_rateKiB, ".2f")}
+                response_dict['torrents'].update({torrent.hash: torrent_dict})
+            return HttpResponse(simplejson.dumps(response_dict), mimetype='application/javascript')
+        else:
+            form = AddTorrentForm()
+            return render_to_response('httorrent/index.html', {'form': form})
 
 @csrf_protect
 def add_torrent(request):
@@ -38,7 +47,8 @@ def add_torrent(request):
         form = AddTorrentForm(request.POST, request.FILES)
         if form.is_valid():
             utils.handle_uploaded_file(request.FILES['file'])
-            return HttpResponseRedirect('../')
+            return None
+            #return HttpResponseRedirect('../')
     else:
         form = AddTorrentForm()
 

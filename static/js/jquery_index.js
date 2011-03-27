@@ -40,17 +40,13 @@ function get_torrents() {
 
 $(function() {
 	var filename = $("#id_file")
-	// Dialog			
+	// Dialog
 	$('#dialog').dialog({
 		autoOpen: false,
 		width: 600,
 		buttons: {
 			"Upload torrent": function() { 
-				$.post('/httorrent/add_torrent', filename.val(), function(data) {
-				}, "html")
-				.error(function(data) {
-					$('#result').append(data);
-				});
+				$('#file_form').submit();
 				$(this).dialog("close"); 
 			}, 
 			"Cancel": function() { 
