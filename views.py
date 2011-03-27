@@ -5,7 +5,7 @@ from django.core.context_processors import csrf
 
 from django.utils import simplejson
 
-from models import Torrent, RTorrent
+from rtorrentpy.models import Torrent, RTorrent
 from forms import AddTorrentForm
 import utils
 

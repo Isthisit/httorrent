@@ -1,9 +1,48 @@
-#from django.db import models
-import utils
+#!/usr/bin/env python
+
 import xmlrpclib
+from connection_manager import Connection
+
+c = Connection()
+
+class RTorrentRpcObject(object):
+    _attrs = {}
+
+    def __getattr__(self, name):
+        unit = None
+        if len(name) > 4 and name[-1] == 'B':
+            if name[-3:] in ('_GB', '_MB', '_KB'):
+                unit = name[-2:]
+                name = name[:-3]
+            elif name[-4:] in ('_GiB', '_MiB', '_KiB'):
+                unit = name[-3:]
+                name = name[:-4]
+
+        if unit is not None:
+            return filter_bytes(self._attrs[name], unit)
+        else:
+            return self._attrs[name]
+
+
+def filter_bytes(count, unit):
+    factor = 1
+    if unit == "KiB":
+        factor = 1024.0
+    elif unit == "MiB":
+        factor = 1024.0 * 1024
+    elif unit == "GiB":
+        factor = 1024.0 * 1024 * 1024
+    elif unit == "KB":
+        factor = 1000.0
+    elif unit == "MB":
+        factor = 1000000.0
+    elif unit == "GB":
+        factor = 1000000000.0
+
+    return count / factor
 
 class File(object):
-    server=None
+    server=c.rpc
     
     def __init__(self, key, index, path, size, completed):
         self.torrent_key = key
@@ -17,15 +56,13 @@ class File(object):
     def update(self, name):
         pass
 
-    sizeMiB = property(fget=lambda self : utils.filter_bytes(self.size, "MiB"))
-    completedMiB = property(fget=lambda self : utils.filter_bytes(self.completed, "MiB"))
+    sizeMiB = property(fget=lambda self : filter_bytes(self.size, "MiB"))
+    completedMiB = property(fget=lambda self : filter_bytes(self.completed, "MiB"))
 
 class Torrent(object):
-    server=None
+    server=c.rpc
     
     def __init__(self, key):
-        if self.server is None:
-            self.server = utils.connect()
         self.key = key
         self.update(key)
 
@@ -64,16 +101,13 @@ class Torrent(object):
         self.open = (result[11] == 1)
         self.active = (result[12] == 1)
 
-    sizeMiB = property(fget=lambda self : utils.filter_bytes(self.size, "MiB"))
-    completedMiB = property(fget=lambda self : utils.filter_bytes(self.completed, "MiB"))
-    down_rateKiB = property(fget=lambda self : utils.filter_bytes(self.down_rate, "KiB"))
-    up_rateKiB = property(fget=lambda self : utils.filter_bytes(self.up_rate, "KiB"))
+    sizeMiB = property(fget=lambda self : filter_bytes(self.size, "MiB"))
+    completedMiB = property(fget=lambda self : filter_bytes(self.completed, "MiB"))
+    down_rateKiB = property(fget=lambda self : filter_bytes(self.down_rate, "KiB"))
+    up_rateKiB = property(fget=lambda self : filter_bytes(self.up_rate, "KiB"))
 
     @classmethod
     def all(cls):
-        if cls.server is None:
-            cls.server = utils.connect()
-
         return [Torrent(key) for key in cls.server.download_list('')]
 
     def all_files(self):
@@ -88,11 +122,9 @@ class Torrent(object):
     #    server.close()
 
 class RTorrent(object):
-    server=None
+    server=c.rpc
 
     def __init__(self):
-        if self.server is None:
-            self.server = utils.connect()
         self.update()
 
     def update(self):
@@ -104,7 +136,7 @@ class RTorrent(object):
         self.up_rate = result[0]
         self.down_rate = result[1]
 
-    down_rateKiB = property(fget=lambda self : utils.filter_bytes(self.down_rate, "KiB"))
-    up_rateKiB = property(fget=lambda self : utils.filter_bytes(self.up_rate, "KiB"))
+    down_rateKiB = property(fget=lambda self : filter_bytes(self.down_rate, "KiB"))
+    up_rateKiB = property(fget=lambda self : filter_bytes(self.up_rate, "KiB"))
 
 
