@@ -28,4 +28,7 @@ def handle_uploaded_file(file_object):
         destination.write(chunk)
     destination.close()
 
+def _get_rpc_methods():
+    s = connect()
+    return s.system.listMethods()
 

@@ -5,12 +5,20 @@ import xmlrpclib
 class File(object):
     server=None
     
-    def __init__(self, key, path):
+    def __init__(self, key, index, path, size, completed):
         self.torrent_key = key
+        self.index = index
         self.path = path
+        self.size = size
+        self.completed = completed
+        if self.completed > self.size:
+            self.completed = self.size
 
     def update(self, name):
         pass
+
+    sizeMiB = property(fget=lambda self : utils.filter_bytes(self.size, "MiB"))
+    completedMiB = property(fget=lambda self : utils.filter_bytes(self.completed, "MiB"))
 
 class Torrent(object):
     server=None
@@ -43,12 +51,14 @@ class Torrent(object):
         multicall.d.get_chunk_size(key)          # 17
         multicall.d.get_down_rate(key)           # 18
         multicall.d.get_up_rate(key)             # 19
+        multicall.d.get_completed_bytes(key)     # 20
         result = tuple(multicall())
 
         self.hash = result[0]
         self.name = result[1]
-        self.size = result[15] * result[17]
-        self.completed = result[16] * result[17]
+        self.chunk_size = result[17]
+        self.size = result[15] * self.chunk_size
+        self.completed = result[20]
         self.down_rate = result[18]
         self.up_rate = result[19]
         self.open = (result[11] == 1)
@@ -67,8 +77,8 @@ class Torrent(object):
         return [Torrent(key) for key in cls.server.download_list('')]
 
     def all_files(self):
-        files = self.server.f.multicall(self.key, 'default', 'f.get_path=')
-        self.files = [File(self.key, f[0]) for f in files]
+        files = enumerate(self.server.f.multicall(self.key, 'default', 'f.get_path=', 'f.get_size_bytes=', 'f.get_completed_chunks='))
+        self.files = [File(self.key, f[0], f[1][0], f[1][1], f[1][2] * self.chunk_size) for f in files]
         return self.files
 
     def __unicode__(self):

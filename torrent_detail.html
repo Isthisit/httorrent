@@ -35,10 +35,10 @@
         </thead>
         {% if files %}
           {% for file in files %}
-            <tr>
+            <tr id="file_{{ file.index }}">
               <th>{{ file.path }}</th>
-              <td>0</td>
-              <td>0</td>
+              <td>{{ file.completedMiB }}</td>
+              <td>{{ file.sizeMiB }}</td>
             </tr>
           {% endfor %}
         {% else %}
