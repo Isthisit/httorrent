@@ -12,6 +12,8 @@ urlpatterns = patterns('httorrent.views',
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
+    (r'(?P<torrent_hash>[0-9a-fA-F]+)/$', 'torrent_detail'),
     (r'^add_torrent/$', 'add_torrent'),
+    (r'^ajax_example', 'ajax_example'),
     (r'^$', 'index'),
 )

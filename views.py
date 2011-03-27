@@ -27,7 +27,8 @@ def index(request):
                                   'download_rate': format(rtorrent.down_rateKiB, ".2f"),
                                   'torrents': {}})
             for torrent in torrent_list:
-                torrent_dict = {'name': torrent.name, 
+                torrent_dict = {'hash': torrent.hash,
+                                'name': torrent.name, 
                                 'size': format(torrent.sizeMiB, ".2f"),
                                 'completed': format(torrent.completedMiB, ".2f"),
                                 'up_rate': format(torrent.up_rateKiB, ".2f"),
@@ -54,6 +55,11 @@ def add_torrent(request):
 
     c.update({'form': form})
     return render_to_response('httorrent/add_torrent.html', c)
+
+def torrent_detail(request, torrent_hash):
+    torrent = Torrent(torrent_hash)
+    files = torrent.all_files()
+    return render_to_response('httorrent/torrent_detail.html', {'torrent': torrent, 'files': files})
 
 def ajax_example(request):
     if not request.POST:

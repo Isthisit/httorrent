@@ -2,10 +2,22 @@
 import utils
 import xmlrpclib
 
+class File(object):
+    server=None
+    
+    def __init__(self, key, path):
+        self.torrent_key = key
+        self.path = path
+
+    def update(self, name):
+        pass
+
 class Torrent(object):
     server=None
     
     def __init__(self, key):
+        if self.server is None:
+            self.server = utils.connect()
         self.key = key
         self.update(key)
 
@@ -54,10 +66,35 @@ class Torrent(object):
 
         return [Torrent(key) for key in cls.server.download_list('')]
 
+    def all_files(self):
+        files = self.server.f.multicall(self.key, 'default', 'f.get_path=')
+        self.files = [File(self.key, f[0]) for f in files]
+        return self.files
+
     def __unicode__(self):
         return self.name
 
     #def __del__(self):
     #    server.close()
+
+class RTorrent(object):
+    server=None
+
+    def __init__(self):
+        if self.server is None:
+            self.server = utils.connect()
+        self.update()
+
+    def update(self):
+        multicall = xmlrpclib.MultiCall(self.server)
+        multicall.get_upload_rate()
+        multicall.get_download_rate()
+        result = tuple(multicall())
+
+        self.up_rate = result[0]
+        self.down_rate = result[1]
+
+    down_rateKiB = property(fget=lambda self : utils.filter_bytes(self.down_rate, "KiB"))
+    up_rateKiB = property(fget=lambda self : utils.filter_bytes(self.up_rate, "KiB"))
 
 
