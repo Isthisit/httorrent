@@ -6,6 +6,7 @@ from connection_manager import Connection
 c = Connection()
 
 class RTorrentRpcObject(object):
+    server=c.rpc
     _attrs = {}
 
     def __getattr__(self, name):
@@ -17,12 +18,16 @@ class RTorrentRpcObject(object):
             elif name[-4:] in ('_GiB', '_MiB', '_KiB'):
                 unit = name[-3:]
                 name = name[:-4]
+        
+        if self._attrs.has_key(name):
+            value = self.rpc_call(self._attrs[name])
 
-        if unit is not None:
-            return filter_bytes(self._attrs[name], unit)
+            if unit is not None:
+                return filter_bytes(value, unit)
+            else:
+                return value
         else:
-            return self._attrs[name]
-
+            return self.__dict__[name]
 
 def filter_bytes(count, unit):
     factor = 1
@@ -41,14 +46,19 @@ def filter_bytes(count, unit):
 
     return count / factor
 
-class File(object):
-    server=c.rpc
+class File(RTorrentRpcObject):
+    _attrs = {
+        'path': 'f.get_path',
+        'size': 'f.get_size_bytes',
+        'completed': 'f.get_completed_chunks', 
+        }
+
+    def rpc_call(self, method):
+        return self.server.__getattr__(method)(self.torrent_key, self.index)
     
     def __init__(self, key, index, path, size, completed):
         self.torrent_key = key
         self.index = index
-        self.path = path
-        self.size = size
         self.completed = completed
         if self.completed > self.size:
             self.completed = self.size
