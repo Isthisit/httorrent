@@ -3,31 +3,7 @@
 import xmlrpclib
 from connection_manager import Connection
 
-c = Connection()
-
-class RTorrentRpcObject(object):
-    server=c.rpc
-    _attrs = {}
-
-    def __getattr__(self, name):
-        unit = None
-        if len(name) > 4 and name[-1] == 'B':
-            if name[-3:] in ('_GB', '_MB', '_KB'):
-                unit = name[-2:]
-                name = name[:-3]
-            elif name[-4:] in ('_GiB', '_MiB', '_KiB'):
-                unit = name[-3:]
-                name = name[:-4]
-        
-        if self._attrs.has_key(name):
-            value = self.rpc_call(self._attrs[name])
-
-            if unit is not None:
-                return filter_bytes(value, unit)
-            else:
-                return value
-        else:
-            return self.__dict__[name]
+c = Connection('http://192.168.0.1/RPC2')
 
 def filter_bytes(count, unit):
     factor = 1
@@ -46,6 +22,62 @@ def filter_bytes(count, unit):
 
     return count / factor
 
+class RTorrentRpcObject(object):
+    server = c.rpc
+    _attrs = {}
+
+    def __init__(self):
+        self._cache = {}
+
+    def __getattr__(self, name):
+        unit = None
+        if len(name) > 4 and name[-1] == 'B':
+            if name[-3:] in ('_GB', '_MB', '_KB'):
+                unit = name[-2:]
+                name = name[:-3]
+            elif name[-4:] in ('_GiB', '_MiB', '_KiB'):
+                unit = name[-3:]
+                name = name[:-4]
+        
+        if self._attrs.has_key(name):
+            rpc_attr = self._attrs[name]
+            if self._cache.has_key(rpc_attr):
+                value = self._cache[rpc_attr]
+            else:
+                value = self.rpc_call(rpc_attr)
+                self.set_cache(rpc_attr, value)
+
+            if unit is not None:
+                return filter_bytes(value, unit)
+            else:
+                return value
+        else:
+            return self.__dict__[name]
+
+    def set_cache(self, attr_value, value):
+        self._cache[attr_value] = value
+
+
+class RTorrentRpcContainer(list):
+    server = c.rpc
+
+    def __init__(self, member_type, *args):
+        self.member_type = member_type
+
+        list.__init__(self, *args)
+
+    def get(self, *names):
+        rpcs = [self.member_type._attrs[name] for name in names]
+        values_list = self.rpc_multicall(rpcs)
+
+        for i, values in enumerate(values_list):
+            for rpc, value in zip(rpcs, values):
+                try:
+                    self[i].set_cache(rpc, value)
+                except IndexError:
+                    self.append(self.member_type(*self.get_args(i)))
+                    self[i].set_cache(rpc, value)
+
 class File(RTorrentRpcObject):
     _attrs = {
         'path': 'f.get_path',
@@ -56,12 +88,10 @@ class File(RTorrentRpcObject):
     def rpc_call(self, method):
         return self.server.__getattr__(method)(self.torrent_key, self.index)
     
-    def __init__(self, key, index, path, size, completed):
+    def __init__(self, key, index):
         self.torrent_key = key
         self.index = index
-        self.completed = completed
-        if self.completed > self.size:
-            self.completed = self.size
+        RTorrentRpcObject.__init__(self)
 
     def update(self, name):
         pass
@@ -69,12 +99,26 @@ class File(RTorrentRpcObject):
     sizeMiB = property(fget=lambda self : filter_bytes(self.size, "MiB"))
     completedMiB = property(fget=lambda self : filter_bytes(self.completed, "MiB"))
 
+class FileList(RTorrentRpcContainer):
+
+    def __init__(self, torrent_key, *args):
+        self.torrent_key = torrent_key
+        RTorrentRpcContainer.__init__(self, File, *args)
+
+    def rpc_multicall(self, rpcs):
+        rpc_args = [r + "=" for r in rpcs]
+        return self.server.f.multicall(self.torrent_key, 'default', *rpc_args)
+
+    def get_args(self, index):
+        return (self.torrent_key, index)
+
 class Torrent(object):
     server=c.rpc
     
     def __init__(self, key):
         self.key = key
         self.update(key)
+        self.files = FileList(key)
 
     def update(self, key):
         multicall = xmlrpclib.MultiCall(self.server)
@@ -121,15 +165,12 @@ class Torrent(object):
         return [Torrent(key) for key in cls.server.download_list('')]
 
     def all_files(self):
-        files = enumerate(self.server.f.multicall(self.key, 'default', 'f.get_path=', 'f.get_size_bytes=', 'f.get_completed_chunks='))
-        self.files = [File(self.key, f[0], f[1][0], f[1][1], f[1][2] * self.chunk_size) for f in files]
+        self.files.get('path', 'size', 'completed')
         return self.files
 
     def __unicode__(self):
         return self.name
 
-    #def __del__(self):
-    #    server.close()
 
 class RTorrent(object):
     server=c.rpc
