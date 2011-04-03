@@ -37,8 +37,8 @@
           {% for file in files %}
             <tr id="file_{{ file.index }}">
               <th>{{ file.path }}</th>
-              <td>{{ file.completedMiB }}</td>
-              <td>{{ file.sizeMiB }}</td>
+              <td>{{ file.completed_MiB }}</td>
+              <td>{{ file.size_MiB }}</td>
             </tr>
           {% endfor %}
         {% else %}

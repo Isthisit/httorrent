@@ -82,35 +82,40 @@ class File(RTorrentRpcObject):
     _attrs = {
         'path': 'f.get_path',
         'size': 'f.get_size_bytes',
-        'completed': 'f.get_completed_chunks', 
+        'completed_chunks': 'f.get_completed_chunks', 
         }
 
     def rpc_call(self, method):
-        return self.server.__getattr__(method)(self.torrent_key, self.index)
+        return self.server.__getattr__(method)(self.torrent.key, self.index)
     
-    def __init__(self, key, index):
-        self.torrent_key = key
+    def __init__(self, torrent, index):
+        self.torrent = torrent
         self.index = index
         RTorrentRpcObject.__init__(self)
 
-    def update(self, name):
-        pass
+    def __getattr__(self, name):
+        """Stupid hack."""
 
-    sizeMiB = property(fget=lambda self : filter_bytes(self.size, "MiB"))
-    completedMiB = property(fget=lambda self : filter_bytes(self.completed, "MiB"))
+        # fuck fuck fuck
+        if name[:9] == 'completed':
+            return filter_bytes(File.completed(self), name[-3:])
+        else:
+            return RTorrentRpcObject.__getattr__(self, name)
+
+    completed = property(fget=lambda self : int(self.completed_chunks) * float(self.torrent.chunk_size))
 
 class FileList(RTorrentRpcContainer):
 
-    def __init__(self, torrent_key, *args):
-        self.torrent_key = torrent_key
+    def __init__(self, torrent, *args):
+        self.torrent = torrent
         RTorrentRpcContainer.__init__(self, File, *args)
 
     def rpc_multicall(self, rpcs):
         rpc_args = [r + "=" for r in rpcs]
-        return self.server.f.multicall(self.torrent_key, 'default', *rpc_args)
+        return self.server.f.multicall(self.torrent.key, 'default', *rpc_args)
 
     def get_args(self, index):
-        return (self.torrent_key, index)
+        return (self.torrent, index)
 
 class Torrent(object):
     server=c.rpc
@@ -118,7 +123,7 @@ class Torrent(object):
     def __init__(self, key):
         self.key = key
         self.update(key)
-        self.files = FileList(key)
+        self.files = FileList(self)
 
     def update(self, key):
         multicall = xmlrpclib.MultiCall(self.server)
@@ -165,7 +170,7 @@ class Torrent(object):
         return [Torrent(key) for key in cls.server.download_list('')]
 
     def all_files(self):
-        self.files.get('path', 'size', 'completed')
+        self.files.get('path', 'size', 'completed_chunks')
         return self.files
 
     def __unicode__(self):

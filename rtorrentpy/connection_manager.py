@@ -1,25 +1,22 @@
 import xmlrpclib
 import os
 
-class Connection(object):
-    rpc = None
-    _uri = None
+class Connection:
+    __shared_state = {}
 
     def __init__(self, uri=None, ignore_empty_uri=False):
-        if ignore_empty_uri:
-            return
-        elif uri is None and self._uri is not None:
-            return
-        else:
-            self.uri = uri
+        self.__dict__ = self.__shared_state 
+
+        if uri is not None:
+            self.set_uri(uri)
 
     def set_uri(self, uri):
-        if Connection.rpc is not None:
-            Connection.rpc.close()
+        if self.__shared_state.has_key('rpc'):
+            rpc = self.__shared_state.pop('rpc')
+            del(rpc)
 
-        Connection.rpc = xmlrpclib.Server(uri)
-        Connection._uri = uri
-
-    uri = property(fset=set_uri, fget=lambda self : self._uri)
-        
+        self.__shared_state['_uri'] = uri
+        rpc = xmlrpclib.Server(uri)
+        self.__shared_state['rpc'] = rpc
+        self.__dict__ = self.__shared_state
 
