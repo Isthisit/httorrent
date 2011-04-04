@@ -3,11 +3,11 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Torrent Status</title>
-    <script type="text/javascript" src="/static/js/jquery/jquery-1.5.1.min.js"></script>
-    <script type="text/javascript" src="/static/js/jqueryui/jquery-ui-1.8.11.custom.min.js"></script>
-    <script type="text/javascript" src="/static/js/jquery_index.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/base.css" />
-    <link type="text/css" href="/static/css/Aristo/jquery-ui-1.8.7.custom.css" rel="stylesheet" />
+    <script type="text/javascript" src="/httorrent/static/js/jquery/jquery-1.5.1.min.js"></script>
+    <script type="text/javascript" src="/httorrent/static/js/jqueryui/jquery-ui-1.8.11.custom.min.js"></script>
+    <script type="text/javascript" src="/httorrent/static/js/jquery_index.js"></script>
+    <link rel="stylesheet" type="text/css" href="/httorrent/static/css/base.css" />
+    <link type="text/css" href="/httorrent/static/css/Aristo/jquery-ui-1.8.7.custom.css" rel="stylesheet" />
     <style type="text/css">
       .object-left {
         float: left;
@@ -46,8 +46,8 @@
 
   <!-- ui-dialog -->
   <div id="dialog" title="Dialog Title">
-    <form id="file_form" enctype="multipart/form-data" method="POST" action="">
-      {{ form }}
+    <form id="file_form" enctype="multipart/form-data" method="POST" action="/httorrent/upload">
+			<tr><th><label for="id_file">File:</label></th><td><input type="file" name="torrent_file" id="id_file" /></td></tr>
     </form>
   </div>
 </div>

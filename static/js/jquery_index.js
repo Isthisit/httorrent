@@ -12,7 +12,7 @@ function get_torrents() {
 		$.each(data.torrents, function(key, val) {
 			items.push('<tr id="torrent_row">');
 			items.push('<th>');
-			items.push('<a href="' + val.hash + '">' + val.name + '</a>');
+			items.push('<a href="details/' + val.hash + '">' + val.name + '</a>');
 			items.push('</th>');
 			items.push('<td>' + val.completed + '</td>');
 			items.push('<td>' + val.size + '</td>');
