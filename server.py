@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: ascii -*-
 
 import os.path
 
@@ -7,9 +8,10 @@ from cherrypy.lib.static import serve_file
 from mako.template import Template
 import simplejson
 
-from rtorrentpy import models, connection_manager
+from rtorrentpy import models
 
-rt = models.RTorrent()
+rt = models.RTorrent('http://192.168.0.1/RPC2')
+title = "Doorstop Torrents"
 
 class HTTorrent(object):
     
@@ -18,8 +20,8 @@ class HTTorrent(object):
         if kwargs.has_key('torrent'):
             response_dict = {}
             rt.update()
-            response_dict.update({'upload_rate': rt.up_rate_KiB,
-                                  'download_rate': rt.down_rate_KiB,
+            response_dict.update({'upload_rate': rt.get_upload_rate(),
+                                  'download_rate': rt.get_download_rate(),
                                   'torrents': {}})
             for torrent in rt.torrents.itervalues():
                 torrent_dict = {'hash': torrent.hash,
@@ -31,7 +33,7 @@ class HTTorrent(object):
                 response_dict['torrents'].update({torrent.hash: torrent_dict})
             return simplejson.dumps(response_dict)
         else:
-            return Template(filename="index.html").render()
+            return Template(filename="index.html").render(title=title)
 
     @cherrypy.expose
     def upload(self, torrent_file):

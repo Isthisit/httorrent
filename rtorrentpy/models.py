@@ -1,85 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: ascii -*-
 
 import xmlrpclib
-from connection_manager import Connection
-
-c = Connection('http://192.168.0.1/RPC2')
-
-def filter_bytes(count, unit):
-    factor = 1
-    if unit == "KiB":
-        factor = 1024.0
-    elif unit == "MiB":
-        factor = 1024.0 * 1024
-    elif unit == "GiB":
-        factor = 1024.0 * 1024 * 1024
-    elif unit == "KB":
-        factor = 1000.0
-    elif unit == "MB":
-        factor = 1000000.0
-    elif unit == "GB":
-        factor = 1000000000.0
-
-    return format(count / factor, '.2f')
-
-class RTorrentRpcObject(object):
-    server = c.rpc
-    _attrs = {}
-
-    def __init__(self):
-        self._cache = {}
-
-    def __getattr__(self, name):
-        unit = None
-        if len(name) > 4 and name[-1] == 'B':
-            if name[-3:] in ('_GB', '_MB', '_KB'):
-                unit = name[-2:]
-                name = name[:-3]
-            elif name[-4:] in ('_GiB', '_MiB', '_KiB'):
-                unit = name[-3:]
-                name = name[:-4]
-        
-        if self._attrs.has_key(name):
-            rpc_attr = self._attrs[name]
-            if self._cache.has_key(rpc_attr):
-                value = self._cache[rpc_attr]
-            else:
-                value = self.rpc_call(rpc_attr)
-                self.set_cache(rpc_attr, value)
-
-            if unit is not None:
-                return filter_bytes(value, unit)
-            else:
-                return value
-        else:
-            return self.__dict__[name]
-
-    def set_cache(self, attr_value, value):
-        self._cache[attr_value] = value
-
-    def pop_cache(self, attr_name):
-        if self._cache.has_key(self._attrs[attr_name]):
-            self._cache.pop(self._attrs[attr_name])
-
-class RTorrentRpcContainer(list):
-    server = c.rpc
-
-    def __init__(self, member_type, *args):
-        self.member_type = member_type
-
-        list.__init__(self, *args)
-
-    def get(self, *names):
-        rpcs = [self.member_type._attrs[name] for name in names]
-        values_list = self.rpc_multicall(rpcs)
-
-        for i, values in enumerate(values_list):
-            for rpc, value in zip(rpcs, values):
-                try:
-                    self[i].set_cache(rpc, value)
-                except IndexError:
-                    self.append(self.member_type(*self.get_args(i)))
-                    self[i].set_cache(rpc, value)
+from rpcobjects import RTorrentRpcObject, RTorrentRpcContainer
+from util import filter_bytes
 
 class File(RTorrentRpcObject):
     _attrs = {
@@ -91,10 +15,10 @@ class File(RTorrentRpcObject):
     def rpc_call(self, method):
         return self.server.__getattr__(method)(self.torrent.key, self.index)
     
-    def __init__(self, torrent, index):
+    def __init__(self, torrent, index, *args, **kwargs):
         self.torrent = torrent
         self.index = index
-        RTorrentRpcObject.__init__(self)
+        RTorrentRpcObject.__init__(self, *args, **kwargs)
 
     def get_completed(self, units="KiB"):
         value = int(self.completed_chunks) * float(self.torrent.chunk_size)
@@ -104,9 +28,9 @@ class File(RTorrentRpcObject):
 
 class FileList(RTorrentRpcContainer):
 
-    def __init__(self, torrent, *args):
+    def __init__(self, torrent, *args, **kwargs):
         self.torrent = torrent
-        RTorrentRpcContainer.__init__(self, File, *args)
+        RTorrentRpcContainer.__init__(self, File, *args, **kwargs)
 
     def rpc_multicall(self, rpcs):
         rpc_args = [r + "=" for r in rpcs]
@@ -116,7 +40,6 @@ class FileList(RTorrentRpcContainer):
         return (self.torrent, index)
 
 class Torrent(RTorrentRpcObject):
-    server=c.rpc
     _attrs = {
         'hash': 'd.get_hash',
         'name': 'd.get_name',
@@ -132,11 +55,11 @@ class Torrent(RTorrentRpcObject):
     def rpc_call(self, method):
         return self.server.__getattr__(method)(self.key)
     
-    def __init__(self, key):
+    def __init__(self, key, *args, **kwargs):
+        RTorrentRpcObject.__init__(self, *args, **kwargs)
         self.key = key
         #self.update()
-        self.files = FileList(self)
-        RTorrentRpcObject.__init__(self)
+        self.files = FileList(self, self.server)
 
     def update(self):
         self.pop_cache('completed')
@@ -157,7 +80,6 @@ class Torrent(RTorrentRpcObject):
 
 
 class RTorrent(RTorrentRpcObject):
-    server=c.rpc
     _attrs = {
         'up_rate': 'get_upload_rate',
         'down_rate': 'get_download_rate',
@@ -166,10 +88,25 @@ class RTorrent(RTorrentRpcObject):
     def rpc_call(self, method):
         return self.server.__getattr__(method)()
 
-    def __init__(self):
-        RTorrentRpcObject.__init__(self)
+    def __init__(self, server_uri):
+        self.server = xmlrpclib.Server(server_uri)
+        RTorrentRpcObject.__init__(self, self.server)
         self.torrents = {}
         self.update()
+
+    def get_download_rate(self):
+        rate = 0.0
+        for t in self.torrents.values():
+            rate += float(t.down_rate_KiB)
+
+        return str(rate)
+
+    def get_upload_rate(self):
+        rate = 0.0
+        for t in self.torrents.values():
+            rate += float(t.up_rate_KiB)
+
+        return str(rate)
 
     def update(self):
         # clean out own cache
@@ -186,7 +123,7 @@ class RTorrent(RTorrentRpcObject):
         for h in removed:
             self.torrents.pop(h)
         for h in added:
-            self.torrents[h] = Torrent(h)
+            self.torrents[h] = Torrent(h, self.server)
         
         for t in self.torrents.itervalues():
             t.update()

@@ -39,8 +39,7 @@ class RTorrentRpcObject(object):
         self._cache[attr_value] = value
 
     def pop_cache(self, attr_name):
-        if self._cache.has_key(self._attrs[attr_name]):
-            self._cache.pop(self._attrs[attr_name])
+        return self._cache.pop(self._attrs[attr_name], None)
 
 class RTorrentRpcContainer(list):
 
