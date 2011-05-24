@@ -11,25 +11,28 @@ BODY {
 #content-main {
 }
 
-.status {
-	margin: 0;
-}
-
 #footer {
 	padding: 0.5em 1em;
 	margin-top: 1em;
 	background-color: #7ca0c7;
 }
 
-#up-rate {
+#footer:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+#rate {
 	float: left;
 	width: 10em;
 }
 
-#footer span {
+#rate span {
 	float: left;
 }
-
 
 #file_form {
 	font-size: 1em;
