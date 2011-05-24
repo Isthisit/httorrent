@@ -5,48 +5,52 @@
     <title>Torrent Status</title>
     <script type="text/javascript" src="/httorrent/static/js/jquery/jquery-1.5.1.min.js"></script>
     <script type="text/javascript" src="/httorrent/static/js/jqueryui/jquery-ui-1.8.11.custom.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/httorrent/static/css/base.css" />
+    <link rel="stylesheet" type="text/css" href="/httorrent/static/css/style.css" />
     <link type="text/css" href="/httorrent/static/css/Aristo/jquery-ui-1.8.7.custom.css" rel="stylesheet" />
-    <style type="text/css">
-      .object-left {
-        float: left;
-        margin-top: 0.25em;
-      }
-      .object-right {
-        float: right;
-        margin-bottom: 1em;
-      }
-    </style>
   </head>
 </html>
 
 <div id="content">
-  <h1 class="object-left">${torrent.name}</h1>
+	<div id="top">
+		<h1 class="object-left">${torrent.name}</h1>
+	</div>
+
   <div id="content-main">
-    <div class="module">
-      <table width=100% id='torrents'>
-        <caption>Active Torrents</caption>
-        <thead>
-          <tr id="torrent_header">
-            <th>File</th>
-            <th>Downloaded (MiB)</th>
-            <th>Size (MiB)</th>
-          </tr>
-        </thead>
-				% if len(files) > 0:
-          % for file in files:
-            <tr id="file_${file.index}">
-              <th>${file.path}</th>
-              <td>${file.get_completed('MiB')}</td>
-              <td>${file.size_MiB}</td>
-            </tr>
-          % endfor
-        % else:
-          <p>No files in torrent.</p>
-        % endif
-      </table>
-    </div>
+		<table width=100% id='torrents'>
+			<caption>Contents</caption>
+			<thead>
+				<tr class="table-header">
+					<td>File</td>
+					<td>Downloaded (MiB)</td>
+					<td>Size (MiB)</td>
+				</tr>
+			</thead>
+			% if len(files) > 0:
+				% for file in files:
+					<tr id="file_${file.index}">
+						<th>${file.path}</th>
+						<td>${file.get_completed('MiB')}</td>
+						<td>${file.size_MiB}</td>
+					</tr>
+				% endfor
+			% else:
+				<p>No files in torrent.</p>
+			% endif
+		</table>
   </div>
+
+	<!--
+	<div id="footer">
+		<div id="up-rate">
+			<span class="ui-icon ui-icon-arrowthick-1-n"></span>
+			<div id="up-rate-value"></div>
+		</div>
+		<div id="down-rate">
+			<span class="ui-icon ui-icon-arrowthick-1-s"></span>
+			<div id="down-rate-value"></div>
+		</div>
+	</div>
+	-->
 </div>
 
 

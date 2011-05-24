@@ -1,0 +1,118 @@
+BODY {
+	font-size: 12px;
+}
+
+#content {
+	padding: 0 10px 10px 10px;
+	font-family: "Lucida Grande", Verdana, Arial, sans-serif;
+	width: 95%;
+}
+
+#content-main {
+}
+
+.status {
+	margin: 0;
+}
+
+#footer {
+	padding: 0.5em 1em;
+	margin-top: 1em;
+	background-color: #7ca0c7;
+}
+
+#up-rate {
+	float: left;
+	width: 10em;
+}
+
+#footer span {
+	float: left;
+}
+
+
+#file_form {
+	font-size: 1em;
+}
+
+#top {
+	padding: 1px 0 1px 0;
+	/*background-color: #ddd;*/
+	clear: right;
+}
+
+h1 {
+	font-size: 1.7em;
+	margin-top: 0.25em;
+}
+
+a:link, a:visited {
+	color: #5b80b2;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #036;
+}
+
+#dialog_link {
+	float: right;
+}
+
+caption {
+	margin: 0;
+	padding: 2px 5px 3px 5px;
+	text-align: left;
+	font-weight: bold;
+	background: #7CA0C7 url(../img/default-bg.gif) top left repeat-x;
+	color: white;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	border-color: #ccc;
+	border-right: 1px solid #eee;
+	border-left: 1px solid #eee;
+}
+
+tr.table-header td {
+	line-height: 1.09em;
+	border-bottom: 1px solid #eee;
+	vertical-align: top;
+	color: #666;
+	padding: 2px 5px;
+	font-size: 1em;
+	font-weight: bold;
+	background: #e1e1e1 url(../img/nav-bg.gif) top left repeat-x;
+	border-left: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}
+
+td, th {
+	line-height: 1.09em;
+	border-bottom: 1px solid #eee;
+	vertical-align: top;
+	padding: 5px;
+}
+
+th {
+	text-align: left;
+	font-weight: bold;
+}
+
+tfoot td {
+	border-bottom: none;
+	border-top: 1px solid #ddd;
+}
+/*
+thead th:first-child,
+tfoot td:first-child {
+	border-left: none !important;
+}
+	*/
+
+td.row-label {
+	font-weight: bold;
+}
+

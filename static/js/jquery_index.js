@@ -11,9 +11,9 @@ function get_torrents() {
 
 		$.each(data.torrents, function(key, val) {
 			items.push('<tr id="torrent_row">');
-			items.push('<th>');
+			items.push('<td class="row-label">');
 			items.push('<a href="details/' + val.hash + '">' + val.name + '</a>');
-			items.push('</th>');
+			items.push('</td>');
 			items.push('<td>' + val.completed + '</td>');
 			items.push('<td>' + val.size + '</td>');
 			items.push('<td>' + val.down_rate + '</td>');
@@ -22,10 +22,10 @@ function get_torrents() {
 		})
 
 		$('#torrents').append(items.join('\n'));
-		$('#status').empty();
-		$('#status').append('<p>Download Rate: ' + data.download_rate + ' KiB/s</p>');
-		$('#status').append('<p>Upload Rate: ' + data.upload_rate + ' KiB/s</p>');
-
+		$('#up-rate-value').empty();
+		$('#up-rate-value').append(data.upload_rate + ' KiB/s');
+		$('#down-rate-value').empty();
+		$('#down-rate-value').append(data.download_rate + ' KiB/s');
 		setTimeout('get_torrents()', 5000);
 	})
 	.error(function () {

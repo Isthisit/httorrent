@@ -2,50 +2,49 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Torrent Status</title>
+		<title>${title}</title>
     <script type="text/javascript" src="/httorrent/static/js/jquery/jquery-1.5.1.min.js"></script>
     <script type="text/javascript" src="/httorrent/static/js/jqueryui/jquery-ui-1.8.11.custom.min.js"></script>
     <script type="text/javascript" src="/httorrent/static/js/jquery_index.js"></script>
-    <link rel="stylesheet" type="text/css" href="/httorrent/static/css/base.css" />
+    <link rel="stylesheet" type="text/css" href="/httorrent/static/css/style.css" />
     <link type="text/css" href="/httorrent/static/css/Aristo/jquery-ui-1.8.7.custom.css" rel="stylesheet" />
-    <style type="text/css">
-      .object-left {
-        float: left;
-        margin-top: 0.25em;
-      }
-      .object-right {
-        float: right;
-        margin-bottom: 1em;
-      }
-    </style>
   </head>
 </html>
 
 <div id="content">
-  <h1 class="object-left">Doorstop Torrents</h1>
-  <div id="dialog_link" class="object-right">Add Torrent</div>
+	<div id="top">
+		<div id="dialog_link">Add Torrent</div>
+		<h1>${title}</h1>
+	</div>
 
   <div id="content-main">
-    <div class="module">
-      <table width=100% id='torrents'>
-        <caption>Active Torrents</caption>
-        <thead>
-          <tr id="torrent_header">
-            <th>Name</th>
-            <th>Downloaded (MiB)</th>
-            <th>Size (MiB)</th>
-            <th>Download Rate (KiB/s)</th>
-            <th>Upload Rate (KiB/s)</th>
-          </tr>
-        </thead>
-      </table>
-    </div>
-    <div id="status">
-    </div>
+		<table id='torrents'>
+			<caption>Active Torrents</caption>
+			<thead>
+				<tr class="table-header">
+					<td>Name</td>
+					<td>Downloaded (MiB)</td>
+					<td>Size (MiB)</td>
+					<td>Download Rate (KiB/s)</td>
+					<td>Upload Rate (KiB/s)</td>
+				</tr>
+			</thead>
+		</table>
   </div>
 
+	<div id="footer">
+		<div id="up-rate">
+			<span class="ui-icon ui-icon-arrowthick-1-n"></span>
+			<div id="up-rate-value"></div>
+		</div>
+		<div id="down-rate">
+			<span class="ui-icon ui-icon-arrowthick-1-s"></span>
+			<div id="down-rate-value"></div>
+		</div>
+	</div>
+
   <!-- ui-dialog -->
-  <div id="dialog" title="Dialog Title">
+  <div id="dialog" title="Upload Torrent">
     <form id="file_form" enctype="multipart/form-data" method="POST" action="/httorrent/upload">
 			<tr><th><label for="id_file">File:</label></th><td><input type="file" name="torrent_file" id="id_file" /></td></tr>
     </form>
