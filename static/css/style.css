@@ -1,5 +1,5 @@
 BODY {
-	font-size: 12px;
+	font-size: 0.75em;
 }
 
 #content {
@@ -105,6 +105,7 @@ tfoot td {
 	border-bottom: none;
 	border-top: 1px solid #ddd;
 }
+
 /*
 thead th:first-child,
 tfoot td:first-child {
@@ -112,7 +113,4 @@ tfoot td:first-child {
 }
 	*/
 
-td.row-label {
-	font-weight: bold;
-}
 

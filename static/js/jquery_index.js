@@ -7,13 +7,13 @@ function get_torrents() {
 	$.getJSON('/httorrent/?torrent', function(data) {
 		var items = [];
 
-		$('tr').remove('#torrent_row');
+		$('tr').remove('#torrent-row');
 
 		$.each(data.torrents, function(key, val) {
-			items.push('<tr id="torrent_row">');
-			items.push('<td class="row-label">');
+			items.push('<tr id="torrent-row">');
+			items.push('<th>');
 			items.push('<a href="details/' + val.hash + '">' + val.name + '</a>');
-			items.push('</td>');
+			items.push('</th>');
 			items.push('<td>' + val.completed + '</td>');
 			items.push('<td>' + val.size + '</td>');
 			items.push('<td>' + val.down_rate + '</td>');
@@ -29,10 +29,10 @@ function get_torrents() {
 		setTimeout('get_torrents()', 5000);
 	})
 	.error(function () {
-		$('tr').remove('#torrent_row');
+		$('tr').remove('#torrent-row');
 
 		var items = []
-		items.push('<tr id="torrent_row">');
+		items.push('<tr id="torrent-row">');
 		items.push('<th>Could not fetch torrents!</tr>');
 		$('#torrents').append(items.join('\n'));
 
