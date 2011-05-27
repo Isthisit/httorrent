@@ -11,6 +11,7 @@ import simplejson
 from rtorrentpy import models
 
 rt = models.RTorrent('http://192.168.0.1/RPC2')
+torrent_folder = "/mnt/high_speed/public/New/"
 title = "Doorstop Torrents"
 
 class HTTorrent(object):
@@ -37,7 +38,11 @@ class HTTorrent(object):
 
     @cherrypy.expose
     def upload(self, torrent_file):
-        print torrent_file.filename
+        dest = file(torrent_folder + torrent_file.filename, "w")
+        dest.write(torrent_file.file.read(100000))
+        dest.close()
+        torrent_file.file.close()
+        raise cherrypy.HTTPRedirect("/httorrent")
 
     @cherrypy.expose
     def details(self, torrent_hash):
