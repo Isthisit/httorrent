@@ -9,8 +9,12 @@ class File(RTorrentRpcObject):
     _attrs = {
         'path': 'f.get_path',
         'size': 'f.get_size_bytes',
+        'size_chunks': 'f.get_size_chunks',
         'completed_chunks': 'f.get_completed_chunks', 
         }
+
+    percent = property(fget=lambda self : filter_bytes(
+        float(self.completed_chunks) / self.size_chunks, "%"))
 
     def rpc_call(self, method):
         return self.server.__getattr__(method)(self.torrent.key, self.index)
@@ -45,6 +49,7 @@ class Torrent(RTorrentRpcObject):
         'name': 'd.get_name',
         'chunk_size': 'd.get_chunk_size',
         'size_chunks': 'd.get_size_chunks',
+        'completed_chunks': 'd.get_completed_chunks',
         'completed': 'd.get_completed_bytes',
         'down_rate': 'd.get_down_rate',
         'up_rate': 'd.get_up_rate',
@@ -70,6 +75,10 @@ class Torrent(RTorrentRpcObject):
 
     size = property(fget=lambda self : self.size_chunks * self.chunk_size)
     size_MiB = property(fget=lambda self : filter_bytes(self.size, "MiB"))
+    percent = property(fget=lambda self : filter_bytes(
+        float(self.completed_chunks) / self.size_chunks, "%"))
+    completed_MiB = property(fget=lambda self : filter_bytes(
+        self.completed_chunks * self.chunk_size, "MiB"))
 
     def all_files(self):
         self.files.get('path', 'size', 'completed_chunks')
@@ -77,7 +86,6 @@ class Torrent(RTorrentRpcObject):
 
     def __unicode__(self):
         return self.name
-
 
 class RTorrent(RTorrentRpcObject):
     _attrs = {

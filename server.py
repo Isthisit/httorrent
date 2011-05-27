@@ -28,7 +28,8 @@ class HTTorrent(object):
                 torrent_dict = {'hash': torrent.hash,
                                 'name': torrent.name, 
                                 'size': torrent.size_MiB,
-                                'completed': torrent.completed_MiB,
+                                'completed': torrent.completed_MiB, 
+                                'percent': torrent.percent,
                                 'up_rate': torrent.up_rate_KiB,
                                 'down_rate': torrent.down_rate_KiB,}
                 response_dict['torrents'].update({torrent.hash: torrent_dict})

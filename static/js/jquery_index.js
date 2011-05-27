@@ -16,6 +16,7 @@ function get_torrents() {
 			items.push('</th>');
 			items.push('<td>' + val.completed + '</td>');
 			items.push('<td>' + val.size + '</td>');
+			items.push('<td>' + val.percent + '</td>');
 			items.push('<td>' + val.down_rate + '</td>');
 			items.push('<td>' + val.up_rate + '</td>');
 			items.push('</tr>');

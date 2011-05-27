@@ -15,6 +15,8 @@ def filter_bytes(count, unit):
         factor = 1000000.0
     elif unit == "GB":
         factor = 1000000000.0
+    elif unit == "%":
+        return format(count * 100, '.2f') + "%"
 
     return format(count / factor, '.2f')
 

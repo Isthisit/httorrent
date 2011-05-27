@@ -23,6 +23,7 @@
 					<td>File</td>
 					<td>Downloaded (MiB)</td>
 					<td>Size (MiB)</td>
+					<td>%</td>
 				</tr>
 			</thead>
 			% if len(files) > 0:
@@ -31,6 +32,7 @@
 						<th>${file.path}</th>
 						<td>${file.get_completed('MiB')}</td>
 						<td>${file.size_MiB}</td>
+						<td>${file.percent}</td>
 					</tr>
 				% endfor
 			% else:
