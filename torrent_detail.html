@@ -31,7 +31,7 @@
 					<tr id="file_${file.index}">
 						<th>${file.path}</th>
 						<td>${file.get_completed('MiB')}</td>
-						<td>${file.size_MiB}</td>
+						<td>${file.get_size('MiB')}</td>
 						<td>${file.percent}</td>
 					</tr>
 				% endfor

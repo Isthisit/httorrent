@@ -24,11 +24,20 @@ class File(RTorrentRpcObject):
         self.index = index
         RTorrentRpcObject.__init__(self, *args, **kwargs)
 
+    def update(self):
+        self.pop_cache('completed_chunks')
+
     def get_completed(self, units="KiB"):
         value = int(self.completed_chunks) * float(self.torrent.chunk_size)
-        if value > self.size:
+        if value > self.size and self.size > 0:
             value = self.size
         return filter_bytes(value, units)
+
+    def get_size(self, units="KiB"):
+        if self.size < 0:
+            return "~" + filter_bytes(self.size_chunks * float(self.torrent.chunk_size), units)
+        return filter_bytes(self.size, units)
+            
 
 class FileList(RTorrentRpcContainer):
 
@@ -50,7 +59,6 @@ class Torrent(RTorrentRpcObject):
         'chunk_size': 'd.get_chunk_size',
         'size_chunks': 'd.get_size_chunks',
         'completed_chunks': 'd.get_completed_chunks',
-        'completed': 'd.get_completed_bytes',
         'down_rate': 'd.get_down_rate',
         'up_rate': 'd.get_up_rate',
         'open': 'd.is_open',
@@ -67,7 +75,7 @@ class Torrent(RTorrentRpcObject):
         self.files = FileList(self, self.server)
 
     def update(self):
-        self.pop_cache('completed')
+        self.pop_cache('completed_chunks')
         self.pop_cache('open')
         self.pop_cache('active')
         self.pop_cache('down_rate')
@@ -77,6 +85,7 @@ class Torrent(RTorrentRpcObject):
     size_MiB = property(fget=lambda self : filter_bytes(self.size, "MiB"))
     percent = property(fget=lambda self : filter_bytes(
         float(self.completed_chunks) / self.size_chunks, "%"))
+    # required due to overflow in d.completed_bytes with torrents > 2GiB
     completed_MiB = property(fget=lambda self : filter_bytes(
         self.completed_chunks * self.chunk_size, "MiB"))
 
